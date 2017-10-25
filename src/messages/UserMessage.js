@@ -1,11 +1,17 @@
+const LOG_LEVELS = {
+  none: 0,
+  info: 1,
+  verbose: 2
+};
+
 function UserMessage(config, bot, logger, connector) {
   this.config = config;
-  this.afterFunc = config.after || function (config, bot ) {
-      return Promise.resolve();
-    }
-  this.beforeFunc = config.before || function (config, bot ) {
-      return Promise.resolve();
-    }
+  this.afterFunc = config.after || function (config, bot) {
+    return Promise.resolve();
+  }
+  this.beforeFunc = config.before || function (config, bot) {
+    return Promise.resolve();
+  }
 
   this.logger = logger;
   this.bot = bot;
@@ -15,7 +21,7 @@ function UserMessage(config, bot, logger, connector) {
 UserMessage.prototype.send = function () {
   return new Promise((resolve, reject) => {
 
-    this.logger('User: >> ' + this.config.user);
+    this.logger('User: >> ' + this.config.user, LOG_LEVELS.info);
     this.logger('Iterating to next step from user message');
 
     this.beforeFunc(this.config, this.bot)
@@ -31,9 +37,17 @@ UserMessage.prototype.send = function () {
           if (!message.data.address) {
             message.address({
               channelId: 'console',
-              user: {id: 'user', name: 'User1'},
-              bot: {id: 'bot', name: 'Bot'},
-              conversation: {id: 'Convo1'}
+              user: {
+                id: 'user',
+                name: 'User1'
+              },
+              bot: {
+                id: 'bot',
+                name: 'Bot'
+              },
+              conversation: {
+                id: 'Convo1'
+              }
             });
           }
           this.connector.onEventHandler([message.toMessage()]);
@@ -43,12 +57,12 @@ UserMessage.prototype.send = function () {
         return true;
       })
       .then(() => {
-        return this.afterFunc(this.config,this.bot );
+        return this.afterFunc(this.config, this.bot);
       })
       .then(() => {
         resolve();
       })
-      .catch((err)=> {
+      .catch((err) => {
         reject(err);
       });
   })

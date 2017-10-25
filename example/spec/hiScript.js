@@ -1,14 +1,19 @@
-module.exports = [
-  {
-    "user" : "hi"
+module.exports = [{
+    "user": "hi"
   },
   {
-    "bot" :"How should I call you?"
+    "bot": "How should I call you?"
   },
   {
-    "user" : "Timmy"
+    "user": "Timmy"
   },
   {
-    "bot" : "Nice to meet you, \"Timmy\"!"
+    "bot": "Nice to meet you there, \"Timmy\"!"
+  },
+  {
+    "user": "See ya"
+  },
+  {
+    "bot": "Goodbye"
   }
 ]

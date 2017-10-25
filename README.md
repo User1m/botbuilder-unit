@@ -63,9 +63,16 @@ please study tests specifications.
 ## Create Test Specification
 
 File **"spec/botSpec.js"**:
+
 ```javascript
 const unit = require('botbuilder-unit');
 const builder = require('botbuilder');
+const ops = {
+    LOG_LEVEL: 1, //default is 2: verbose
+    DEFAULT_TEST_TIMEOUT: 2000, //default is 10000
+    NEXT_USER_MESSAGE_TIMEOUT = 20, //default is 20
+    FINISH_TIMEOUT = 20  //default is 20
+};
 
 describe('Simple test for a bot', () => {
   let bot = null;
@@ -79,7 +86,7 @@ describe('Simple test for a bot', () => {
   });
   it('Test welcome flow', (done) => {
     let messages = require('./hiScript');
-    unit(bot,messages).then( function () {
+    unit(bot,messages, ops).then( function () {
         done();
     });
   });
@@ -156,6 +163,40 @@ module.exports = [
 `npm install --save-dev botbuilder-unit`
 
 # Configuration
+
+## Test Options
+
+You can pass certain options to your `unitTest` via the `options` (3rd) parameter:
+
+* `LOG_LEVEL` - default is 2: verbose
+
+ ```js
+ LOG_LEVELS:
+  	none: 0,
+  	info: 1,
+  	verbose: 2
+```
+
+* `DEFAULT_TEST_TIMEOUT` - default is 10000
+* `NEXT_USER_MESSAGE_TIMEOUT`- default is 20
+* `FINISH_TIMEOUT` - default is 20
+
+```
+const ops = {
+    LOG_LEVEL: 1,
+    DEFAULT_TEST_TIMEOUT: 20000, 
+    NEXT_USER_MESSAGE_TIMEOUT = 20, 
+    FINISH_TIMEOUT = 20
+};
+
+describe('Simple test for a bot', () => {
+ ...
+    unit(bot, messages, ops).then( function () {
+        done();
+    });
+ ...
+
+```
  
 ## Conversation level
 

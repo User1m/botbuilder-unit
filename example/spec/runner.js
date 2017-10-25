@@ -7,8 +7,8 @@ process.on('unhandledRejection', (reason, p) => {
 
 var Jasmine = require('jasmine');
 var jasmine = new Jasmine();
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 50000;
-jasmine.loadConfigFile('./spec/support/jasmine.json');
+jasmine.jasmine.DEFAULT_TIMEOUT_INTERVAL = 999999;
+jasmine.loadConfigFile('./example/spec/support/jasmine.json');
 jasmine.configureDefaultReporter({
   showColors: true
 });
@@ -16,9 +16,9 @@ jasmine.configureDefaultReporter({
 
 var Reporter = require('jasmine-terminal-reporter');
 var reporter = new Reporter({
-  isVerbose : true,
-  includeStackTrace : true,
+  isVerbose: true,
+  includeStackTrace: true,
+});
 
-})
-jasmine.addReporter( reporter );
+jasmine.addReporter(reporter);
 jasmine.execute();
