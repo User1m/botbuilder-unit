@@ -9,11 +9,12 @@ describe('Simple test for a bot', () => {
     bot.dialog('/', [
       session => builder.Prompts.text(session, 'How should I call you?'),
       (session, args) => builder.Prompts.text(session, `Nice to meet you, ${JSON.stringify(args.response)}!`),
-      (session, args) => session.endDialog(`Goodbye------!`)
+      (session, args) => session.endDialog(`Goodbye!`)
     ]);
   });
   var ops = {
     timeout: 2000,
+    LOG_LEVEL: 1
   };
 
   it('Test welcome flow', (done) => {

@@ -8,12 +8,12 @@ module.exports = [{
     "user": "Timmy"
   },
   {
-    "bot": "Nice to meet you there, \"Timmy\"!"
+    "bot": "Nice to meet you, \"Timmy\"!"
   },
   {
     "user": "See ya"
   },
   {
-    "bot": "Goodbye"
+    "bot": "Goodbye!"
   }
 ]
