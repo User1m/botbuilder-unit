@@ -96,6 +96,7 @@ describe('Simple test for a bot', () => {
 ## Create Jasmine Infrastructure Files
 
 File **"spec/support/jasmine.json"**:
+
 ```javascript
 {
   "spec_dir": "spec",
@@ -111,6 +112,7 @@ File **"spec/support/jasmine.json"**:
 ```
 
 Create file **"spec/runner.js"**:
+
 ```javascript
 process.on('uncaughtException', function (exception) {
   console.log(exception);
@@ -141,6 +143,7 @@ jasmine.execute();
 ## Prepare Conversation Script
  
 Create file **"spec/hiScript.js"**:  
+
 ```javascript
 module.exports = [
   {
@@ -181,7 +184,7 @@ You can pass certain options to your `unitTest` via the `options` (3rd) paramete
 * `NEXT_USER_MESSAGE_TIMEOUT`- default is 20
 * `FINISH_TIMEOUT` - default is 20
 
-```
+```js
 const ops = {
     LOG_LEVEL: 1,
     DEFAULT_TEST_TIMEOUT: 20000, 
