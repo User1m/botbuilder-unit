@@ -1,8 +1,15 @@
 "use strict";
 
+const LOG_LEVELS = {
+  none: 0,
+  info: 1,
+  verbose: 2
+};
+
 let FINISH_TIMEOUT = 20;
 let NEXT_USER_MESSAGE_TIMEOUT = 20;
 let DEFAULT_TEST_TIMEOUT = 10000;
+let LOG_LEVEL = LOG_LEVELS.verbose;
 
 const MessageFactory = require('./src/MessageFactory');
 
@@ -11,15 +18,16 @@ const triggerState = {
   after: 'after'
 }
 
-const LOG_LEVELS = {
-  none: 0,
-  info: 1,
-  verbose: 2
-};
-
 testBot.dependencies = {
-  log: console.log
-}
+  log: (msg, ...args) => {
+    if (args[0] === undefined) {
+      args[0] = 2;
+    }
+    if (args[0] <= LOG_LEVEL) {
+      console.log(msg);
+    }
+  }
+};
 
 function testBot(bot, messages, options) {
   options = Object.assign({
@@ -124,18 +132,7 @@ function testBot(bot, messages, options) {
         }, DEFAULT_TEST_TIMEOUT);
       }
       if (options.LOG_LEVEL !== undefined) {
-        testBot.dependencies.log = (msg, ...args) => {
-          if (args[0] === undefined) {
-            args[0] = 2;
-          }
-          if (args[0] <= options.LOG_LEVEL) {
-            console.log(msg);
-          } else if (args[0] <= options.LOG_LEVEL) {
-            console.log(msg);
-          } else if (args[0] <= options.LOG_LEVEL) {
-            console.log(msg);
-          }
-        };
+        LOG_LEVEL = options.LOG_LEVEL;
       }
     }
 
