@@ -14,6 +14,7 @@ describe('Simple test for a bot', () => {
   });
   var ops = {
     DEFAULT_TEST_TIMEOUT: 20000,
+    LOG_LEVEL: 1
   };
 
   it('Test welcome flow', (done) => {
