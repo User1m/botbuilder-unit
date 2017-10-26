@@ -20,10 +20,12 @@ function BotMessage(config, bot, logger) {
 }
 BotMessage.prototype.validate = function (receivedMessage) {
   return new Promise((resolve, reject) => {
-    this.logger(`BOT ACTUAL: >>`, LOG_LEVELS.info);
+    // this.logger(`BOT ACTUAL: >>`, LOG_LEVELS.info);
     if (receivedMessage.text) {
+      this.logger(`BOT ACTUAL: >>`, LOG_LEVELS.info);
       // this.logger(`BOT ACTUAL: >> ${(receivedMessage.text)}`, LOG_LEVELS.info);
     } else {
+      this.logger(`BOT ACTUAL: >>`, LOG_LEVELS.info);
       // this.logger(`BOT ACTUAL: >> ${JSON.stringify(receivedMessage)}`, LOG_LEVELS.info);
     }
     this.beforeFunc(this.config, this.bot)
