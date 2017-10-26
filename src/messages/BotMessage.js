@@ -41,7 +41,7 @@ BotMessage.prototype.validate = function (receivedMessage) {
                 errorMsg += chalk.red("ERROR:\n");
                 errorMsg += `\nActual: ${chalk.red(receivedMessage.text)}\n\n`;
                 errorMsg += `${chalk.yellow("\t------- did not match -------")}\n\n`;
-                errorMsg += `Expected: ${chalk.green(this.config.bot)}\n `;
+                errorMsg += `Expect: ${chalk.green(this.config.bot)}\n `;
                 throw new Error(errorMsg);
                 // reject(error);
               }
