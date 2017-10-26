@@ -11,9 +11,9 @@ module.exports = [{
     "bot": "Nice to meet you, \"Timmy\"!"
   },
   {
-    "user": "See ya"
+    "user": "See you"
   },
   {
     "bot": "Goodbye!"
   }
-]
+];

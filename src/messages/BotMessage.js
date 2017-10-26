@@ -34,7 +34,7 @@ BotMessage.prototype.validate = function (receivedMessage) {
             return this.config.bot(this.bot, receivedMessage);
           } else {
             if (this.config.bot) {
-              this.logger(`\nBOT EXPECT: >> ${this.config.bot}`, LOG_LEVELS.info);
+              this.logger(`\nBOT EXPECT: >>\n\n${this.config.bot}`, LOG_LEVELS.info);
               let result = (this.config.bot.test ? this.config.bot.test(receivedMessage.text) : receivedMessage.text === this.config.bot);
               if (!result) {
                 var errorMsg = `\n--------------------------------------------------------------------------------------\n `;
