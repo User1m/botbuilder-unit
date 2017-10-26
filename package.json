@@ -19,6 +19,7 @@
   },
   "scripts": {
     "test": "gulp tests ",
+    "test-example": "node example/spec/runner",
     "test_debug": "export NODE_DEBUG=botbuilder; node ./spec/runner.js "
   },
   "bugs": {
