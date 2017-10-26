@@ -5,21 +5,24 @@
   "name": "botbuilder-unit",
   "version": "0.3.0",
   "description": "Unit tests for chatbot dialogs",
-  "main": "botbuilder-unit.js",
+  "main": "./build/botbuilder-unit.js",
   "dependencies": {
     "botbuilder": "^3.8.2",
     "chalk": "^2.3.0"
   },
   "devDependencies": {
-    "jasmine": "^2.5.3",
-    "jasmine-terminal-reporter": "^1.0.3",
+    "@types/jasmine": "^2.6.2",
+    "@types/node": "^8.0.47",
     "gulp": "^3.9.1",
     "gulp-jasmine": "^2.4.2",
-    "gulp-watch": "^4.3.11"
+    "gulp-watch": "^4.3.11",
+    "jasmine": "^2.8.0",
+    "jasmine-terminal-reporter": "^1.0.3"
   },
   "scripts": {
+    "watch": "tsc -w -p tsconfig.json",
     "test": "gulp tests ",
-    "test-example": "node example/spec/runner",
+    "test-example": "node ./build/example/spec/runner",
     "test_debug": "export NODE_DEBUG=botbuilder; node ./spec/runner.js "
   },
   "bugs": {

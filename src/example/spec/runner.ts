@@ -5,20 +5,21 @@ process.on('unhandledRejection', (reason, p) => {
   console.log("Unhandled Rejection at: Promise ", p, " reason: ", reason);
 });
 
-var Jasmine = require('jasmine');
-var jasmine = new Jasmine();
+import Jasmine = require('jasmine');
+const jasmine = new Jasmine({});
 jasmine.jasmine.DEFAULT_TIMEOUT_INTERVAL = 999999;
-jasmine.loadConfigFile('./example/spec/support/jasmine.json');
+const config = require('./support/jasmine');
+jasmine.loadConfig(config);
 jasmine.configureDefaultReporter({
   showColors: true
 });
 
 
-var Reporter = require('jasmine-terminal-reporter');
-var reporter = new Reporter({
+import * as Reporter from 'jasmine-terminal-reporter';
+const reporter = new Reporter({
   isVerbose: true,
   includeStackTrace: true,
 });
 
 jasmine.addReporter(reporter);
-jasmine.execute();
+jasmine.execute(null, null);
