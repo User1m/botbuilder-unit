@@ -2,72 +2,73 @@ import { default as chalk } from 'chalk';
 import { LOG_LEVELS } from "../helpers";
 
 export class BotMessage {
-  private config;
-  private afterFunc: Function
-  private beforeFunc: Function
+  private scriptObj;
+  private customAfterScriptMsgFunc: Function
+  private customBeforeScriptMsgFunc: Function
   private logger;
   private bot;
   private connector;
 
-  constructor(config, bot, logger) {
-    this.config = config;
+  constructor(scriptObj, bot, logger) {
+    this.scriptObj = scriptObj;
     this.bot = bot;
     this.logger = logger;
-    this.beforeFunc = this.config.before || function () {
+    this.customBeforeScriptMsgFunc = this.scriptObj.before || function () {
       // this.logger("\n", LOG_LEVELS.info);
       return Promise.resolve();
     }
-
-    this.afterFunc = this.config.after || function () {
+    this.customAfterScriptMsgFunc = this.scriptObj.after || function () {
       this.logger("\n", LOG_LEVELS.info);
       return Promise.resolve();
     };
   }
 
-  public validate(receivedMessage) {
-    return new Promise((resolve, reject) => {
+  public validate(botMessage) {
+    const _this = this;
+
+    return new Promise((resolve: Function, reject: Function) => {
       // this.logger(`BOT ACTUAL: >>`, LOG_LEVELS.info);
-      if (receivedMessage.text) {
-        this.logger(`BOT ACTUAL1: >> ${(receivedMessage.text)}`, LOG_LEVELS.info);
+      if (botMessage.text) {
+        _this.logger(`BOT ACTUAL1: >> ${(botMessage.text)}`, LOG_LEVELS.info);
       } else {
-        this.logger(`BOT ACTUAL2: >> ${JSON.stringify(receivedMessage)}`, LOG_LEVELS.info);
+        _this.logger(`BOT ACTUAL2: >> ${JSON.stringify(botMessage)}`, LOG_LEVELS.info);
       }
 
-      this.beforeFunc(this.config, this.bot)
+      _this.customBeforeScriptMsgFunc(_this.scriptObj, _this.bot)
         .then(() => {
-          if (this.config.bot) {
-            if (typeof this.config.bot === 'function') {
-              return this.config.bot(this.bot, receivedMessage);
+          if (_this.scriptObj.bot) {
+            if (typeof _this.scriptObj.bot === 'function') {
+              return _this.scriptObj.bot(_this.bot, botMessage);
             } else {
-              if (this.config.bot) {
-                this.logger(`\nBOT EXPECT: >>\n\n${this.config.bot}`, LOG_LEVELS.info);
-                let result = (this.config.bot.test ? this.config.bot.test(receivedMessage.text) : receivedMessage.text === this.config.bot);
+              if (_this.scriptObj.bot) {
+                _this.logger(`\nBOT EXPECT: >> ${_this.scriptObj.bot}`, LOG_LEVELS.info);
+                let result = (_this.scriptObj.bot.test ? _this.scriptObj.bot.test(botMessage.text) : botMessage.text === _this.scriptObj.bot);
                 if (!result) {
                   var errorMsg = `\n--------------------------------------------------------------------------------------\n `;
                   errorMsg += chalk.red("ERROR:\n");
-                  errorMsg += `\nActual: ${chalk.red(receivedMessage.text)}\n\n`;
+                  errorMsg += `\nActual: ${chalk.red(botMessage.text)}\n\n`;
                   errorMsg += `${chalk.yellow("\t------- did not match -------")}\n\n`;
-                  errorMsg += `Expect: ${chalk.green(this.config.bot)}\n `;
+                  errorMsg += `Expect: ${chalk.green(_this.scriptObj.bot)}\n `;
                   throw new Error(errorMsg);
                   // reject(error);
                 }
               } else {
-                reject(chalk.yellow(`No input message in: \n${JSON.stringify(this.config)}`));
+                reject(chalk.yellow(`No input message in: \n${JSON.stringify(_this.scriptObj)}`));
               }
               return true;
             }
-          } else if (this.config.endConversation) {
-            this.logger(`BOT: >> endConversation `, LOG_LEVELS.info);
+          } else if (_this.scriptObj.endConversation) {
+            _this.logger(`BOT: >> endConversation `, LOG_LEVELS.info);
             return true;
-          } else if (this.config.typing) {
-            this.logger(`BOT: >> typing `, LOG_LEVELS.info);
+          } else if (_this.scriptObj.typing) {
+            _this.logger(`BOT: >> typing `, LOG_LEVELS.info);
             return true;
           } else {
-            reject(chalk.yellow(`Unable to find matching validator.Step config: \n${JSON.stringify(this.config)}`));
+            reject(chalk.yellow(`Unable to find matching validator.Step scriptObj: \n${JSON.stringify(_this.scriptObj)}`));
           }
         })
         .then(() => {
-          return this.afterFunc(this.config, this.bot);
+          return _this.customAfterScriptMsgFunc(_this.scriptObj, _this.bot);
         })
         .then(() => {
           resolve();

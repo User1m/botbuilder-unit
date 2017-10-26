@@ -2,18 +2,16 @@ import { BotMessageCreator } from './creators/BotMessageCreator';
 import { UserMessageCreator } from './creators/UserMessageCreator';
 
 export class MessageFactory {
-  static botFactory(config, bot, logger) {
-    if (config.bot || config.endConversation || config.typing) {
-      return BotMessageCreator.factory(config, bot, logger);
+  static botFactory(scriptMsg, bot, logger) {
+    if (scriptMsg.bot || scriptMsg.endConversation || scriptMsg.typing) {
+      return BotMessageCreator.factory(scriptMsg, bot, logger);
     }
-
-    throw new Error(`Unsupported config - ${JSON.stringify(config)}`);
+    throw new Error(`Unsupported config - ${JSON.stringify(scriptMsg)}`);
   }
-  static userFactory(config, bot, logger) {
-    if (config.user) {
-      return UserMessageCreator.factory(config, bot, logger)
+  static userFactory(scriptMsg, bot, logger) {
+    if (scriptMsg.user) {
+      return UserMessageCreator.factory(scriptMsg, bot, logger);
     }
-    throw new Error(`Unsupported config - ${JSON.stringify(config)}`);
+    throw new Error(`Unsupported config - ${JSON.stringify(scriptMsg)} `);
   }
 }
-

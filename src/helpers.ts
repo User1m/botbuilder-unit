@@ -5,6 +5,6 @@ export enum LOG_LEVELS {
 }
 
 export enum TRIGGER_STATE {
-    before,
-    after
+    before = "before",
+    after = "after"
 }

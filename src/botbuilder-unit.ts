@@ -37,29 +37,29 @@ export class TestBot {
   }
 
   private init() {
-    this.messages = this.messages.slice(0);
+    // this.messages = this.messages.slice(0);
     this.setupOptions();
   }
 
-  private done(resolve) {
-    resolve();
-  }
+  // private done(resolve) {
+  //   resolve();
+  // }
+  // private fail(reject, err) {
+  //   reject(err);
+  // }
 
-  private fail(reject, err) {
-    reject(err);
-  }
-
-  private callTrigger(check, bot, name, args) {
-    if ("function" == typeof check[name]) {
-      check[name](this.bot, args);
+  private callCustomScriptFunction(scriptObj, bot, customFunctionType, args) {
+    if (typeof scriptObj[customFunctionType] === "function") {
+      scriptObj[customFunctionType](this.bot, args);
     }
   }
 
-  private _d(name) {
-    return this.dependencies[name];
+  private _d(key) {
+    return this.dependencies[key];
   }
 
-  private outputScript() {
+  private printInputScriptInfo() {
+    this._d('log')("\n---------------------------------- INPUT SCRIPT --------------------------------------\n", LOG_LEVELS.info);
     let intro = '';
     this.messages.forEach((item, i) => {
       item = Object.assign({}, item);
@@ -70,13 +70,14 @@ export class TestBot {
       }
       intro = intro + (`${i}: ${JSON.stringify(item)}\n`);
     });
-    intro += '--------------------------------------------------------------------------------------';
+    intro += '\n--------------------------------------------------------------------------------------\n';
     this._d('log')(intro, LOG_LEVELS.info);
   }
 
-  private checkBotMessage(message, check, doneCallback) {
+  private compareBotMessageWithExpected(message, scriptObj, doneCallback) {
+    const _this = this;
     MessageFactory
-      .botFactory(check, this.bot, this._d('log'))
+      .botFactory(scriptObj, _this.bot, _this._d('log'))
       .validate(message)
       .then(() => {
         doneCallback();
@@ -86,44 +87,54 @@ export class TestBot {
       });
   }
 
-  private startTesting(resolve, reject, step) {
+  private startTesting(resolve: Function, reject: Function, step: number) {
     if (this.messages.length) {
-      this.outputScript();
-      this.goToNext(resolve, reject, step);
+      this.printInputScriptInfo();
+      this.goToNextScriptObj(resolve, reject, step);
     }
   }
 
-  private goToNext(resolve, reject, step) {
-    if (!this.messages.length) {
-      var finished = '--------------------------------------------------------------------------------------';
-      finished += `\nSCRIPT FINISHED\n`;
-      finished += '--------------------------------------------------------------------------------------';
+  private printScriptEnd(resolve) {
+    var finished = '--------------------------------------------------------------------------------------';
+    finished += `\nSCRIPT FINISHED\n`;
+    finished += '--------------------------------------------------------------------------------------';
 
-      this._d('log')(finished, LOG_LEVELS.info);
-      setTimeout(this.done(resolve), FINISH_TIMEOUT); // Enable message from connector to appear in current test suite
+    this._d('log')(finished, LOG_LEVELS.info);
+    setTimeout(resolve, FINISH_TIMEOUT); // Enable message from connector to appear in current test suite
+  }
+
+  private goToNextScriptObj(resolve: Function, reject: Function, step: number) {
+    if (!this.messages.length) {
+      this.printScriptEnd(resolve);
       return;
     }
-
     if (this.messages[0].user) {
-      let messageConfig = this.messages.shift();
-      this._d('log')(`Step: #${step}`);
-      step++;
+      this.userMessageBot(resolve, reject, step);
+    } else {
 
-      MessageFactory
-        .userFactory(messageConfig, this.bot, this._d('log'))
-        // .send(messageConfig)
-        .send()
-        .then(function () {
-          if (this.messages.length && (this.messages[0].user)) {
-            setTimeout(function () {
-              this.goToNext(resolve, reject, step);
-            }, NEXT_USER_MESSAGE_TIMEOUT);
-          }
-        })
-        .catch(function (err) {
-          this.fail(reject, err);
-        });
     }
+  }
+
+  private userMessageBot(resolve: Function, reject: Function, step: number) {
+    let scriptObj = this.messages.shift();
+    this._d('log')(`Step: #${step}`);
+    step++;
+
+    const logger = this._d('log');
+    const _this = this;
+    MessageFactory.userFactory(scriptObj, this.bot, logger)
+      // .send(scriptObj)
+      .send()
+      .then(function () {
+        if (_this.messages.length && (_this.messages[0].user)) {
+          setTimeout(function () {
+            _this.userMessageBot(resolve, reject, step);
+          }, NEXT_USER_MESSAGE_TIMEOUT);
+        }
+      })
+      .catch(function (err) {
+        reject(err);
+      });
   }
 
   private setupOptions() {
@@ -141,45 +152,50 @@ export class TestBot {
     }
   }
 
-  private setupReplyReceiver(resolve: Function, reject: Function, step: number) {
+  private catchBotReplies(resolve: Function, reject: Function, step: number) {
+    const _this = this;
     this.bot.on('send', function (message) {
-      this._d('log')(`Step: #${step}\nReceived message from this.bot:`);
-      this._d('log')(message);
-      if (this.messages.length) {
-        var check = this.messages.shift();
-        this._d('log')('Expecting:');
-        this._d('log')(check);
-        this._d('log')('--');
-        step++;
-        this.callTrigger(check, this.bot, TRIGGER_STATE.before, message);
-        this.checkBotMessage(message, check,
-          (err) => {
-            this.callTrigger(check, this.bot, TRIGGER_STATE.after, err);
-            if (err) {
-              // fail(err);
-              console.log(err.message);
-              process.exit(0);
-            } else {
-              this.goToNext(resolve, reject, step);
-            }
-          });
+      _this._d('log')(`Step: #${step}\nReceived message from bot:`);
+      _this._d('log')(message);
+      if (_this.messages.length) {
+        if (_this.messages[0].bot) {
+          const scriptObj = _this.messages.shift();
+          _this._d('log')('Expecting:');
+          _this._d('log')(scriptObj);
+          _this._d('log')('--');
+          step++;
+          _this.callCustomScriptFunction(scriptObj, _this.bot, TRIGGER_STATE.before, message);
+          _this.compareBotMessageWithExpected(message, scriptObj,
+            (err) => {
+              _this.callCustomScriptFunction(scriptObj, _this.bot, TRIGGER_STATE.after, err);
+              if (err !== undefined) {
+                // fail(err);
+                _this._d('log')(err.message);
+                process.exit(0);
+              } else {
+                _this.goToNextScriptObj(resolve, reject, step);
+              }
+            });
+        }
+
       } else {
-        this._d('log')('Bot: >>Ignoring message (Out of Range)', LOG_LEVELS.info);
-        setTimeout(this.done(resolve), FINISH_TIMEOUT); // Enable message from connector to appear in current test suite
+        _this._d('log')('Bot: >>Ignoring message (Out of Range)', LOG_LEVELS.info);
+        setTimeout(resolve, FINISH_TIMEOUT); // Enable message from connector to appear in current test suite
       }
     });
   }
 
   public run(): Promise<any> {
-    return new Promise(function (resolve, reject) {
-      var step = 0;
-      var connector = this.this.bot.connector('console');
+    const _this = this;
+    return new Promise(function (resolve: Function, reject: Function) {
+      const step = 0;
+      const connector = _this.bot.connector('console');
 
-      this.setupReplyReceiver(resolve, reject, step);
-      this.startTesting(resolve, reject, step);
+      _this.catchBotReplies(resolve, reject, step);
+      _this.startTesting(resolve, reject, step);
 
       setTimeout(() => {
-        reject(`Default timeout (${this.options.DEFAULT_TEST_TIMEOUT}) exceeded`);
+        reject(`Default timeout (${_this.options.DEFAULT_TEST_TIMEOUT}) exceeded`);
       }, DEFAULT_TEST_TIMEOUT);
     });
   }

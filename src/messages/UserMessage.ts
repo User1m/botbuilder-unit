@@ -2,40 +2,42 @@
 import { LOG_LEVELS } from "../helpers";
 
 export class UserMessage {
-  private config;
-  private afterFunc: Function
-  private beforeFunc: Function
+  private scriptObj;
+  private customAfterScriptMsgFunc: Function
+  private customBeforeScriptMsgFunc: Function
   private logger;
   private bot;
   private connector;
 
-  constructor(config, bot, logger, connector) {
-    this.config = config;
+  constructor(scriptObj, bot, logger, connector) {
+    this.scriptObj = scriptObj;
     this.logger = logger;
     this.bot = bot;
     this.connector = connector;
-    this.afterFunc = config.after || function (config, bot) {
+    this.customBeforeScriptMsgFunc = scriptObj.before || function (scriptObj, bot) {
       return Promise.resolve();
     }
-    this.beforeFunc = config.before || function (config, bot) {
+    this.customAfterScriptMsgFunc = scriptObj.after || function (scriptObj, bot) {
       return Promise.resolve();
     }
   }
 
   //sends use message to instance of bot for processing
   public send(): Promise<any> {
+    const _this = this;
     return new Promise((resolve, reject) => {
 
-      this.logger('User: >> ' + this.config.user, LOG_LEVELS.info);
-      this.logger('Iterating to next step from user message');
+      _this.logger('User: >> ' + _this.scriptObj.user, LOG_LEVELS.info);
+      _this.logger('Iterating to next step from user message');
 
-      this
-        .beforeFunc(this.config, this.bot)
+      _this
+        .customBeforeScriptMsgFunc(_this.scriptObj, _this.bot)
         .then(() => {
-          if (typeof this.config.user === "function") {
-            return this.config.user(this.bot);
+          if (typeof _this.scriptObj.user === "function") {
+            return _this.scriptObj.user(_this.bot);
           } else {
-            return Promise.resolve(this.config.user);
+            //move to then branch below
+            return Promise.resolve(_this.scriptObj.user);
           }
         })
         .then((message) => {
@@ -56,14 +58,15 @@ export class UserMessage {
                 }
               });
             }
-            this.connector.onEventHandler([message.toMessage()]);
+            _this.connector.onEventHandler([message.toMessage()]);
           } else {
-            this.connector.processMessage(message);
+            //pass message to console connector
+            _this.connector.processMessage(message);
           }
           return true;
         })
         .then(() => {
-          return this.afterFunc(this.config, this.bot);
+          return _this.customAfterScriptMsgFunc(_this.scriptObj, _this.bot);
         })
         .then(() => {
           resolve();

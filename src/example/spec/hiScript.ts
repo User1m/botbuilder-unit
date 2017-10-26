@@ -11,8 +11,12 @@ export =[{
   "bot": "Nice to meet you, \"Timmy\"!"
 },
 {
-  "user": "See you"
-},
-{
-  "bot": "Goodbye!"
-}];
+  "bot": "Ok time to go!"
+}
+  // {
+  //   "user": "See you"
+  // },
+  // {
+  //   "bot": "Goodbye!"
+  // }
+];

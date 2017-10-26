@@ -1,7 +1,7 @@
 import { TestBot } from '../../botbuilder-unit';
 import builder = require('botbuilder');
 const ops = {
-  DEFAULT_TEST_TIMEOUT: 20000,
+  DEFAULT_TEST_TIMEOUT: 999999,
   LOG_LEVEL: 1
 };
 
@@ -12,7 +12,10 @@ describe('Simple test for a bot', () => {
     bot = new builder.UniversalBot(connector);
     bot.dialog('/', [
       session => builder.Prompts.text(session, 'How should I call you?'),
-      (session, args) => builder.Prompts.text(session, `Nice to meet you, ${JSON.stringify(args.response)}!`),
+      (session, args) => {
+        session.send(`Nice to meet you, ${JSON.stringify(args.response)}!`);
+        builder.Prompts.text(session, "Ok time to go!");
+      },
       (session, args) => session.endDialog(`Goodbye!`)
     ]);
   });
