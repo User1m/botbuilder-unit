@@ -108,33 +108,34 @@ export class TestBot {
       this.printScriptEnd(resolve);
       return;
     }
-    if (this.messages[0].user) {
-      this.userMessageBot(resolve, reject, step);
-    } else {
-
-    }
+    this.userMessageBot(resolve, reject, step);
   }
 
   private userMessageBot(resolve: Function, reject: Function, step: number) {
-    let scriptObj = this.messages.shift();
-    this._d('log')(`Step: #${step}`);
-    step++;
+    if (this.messages[0].user) {
+      let scriptObj = this.processScripMsg();
+      this._d('log')(`Step: #${step}`);
+      step++;
 
-    const logger = this._d('log');
-    const _this = this;
-    MessageFactory.userFactory(scriptObj, this.bot, logger)
-      // .send(scriptObj)
-      .send()
-      .then(function () {
-        if (_this.messages.length && (_this.messages[0].user)) {
-          setTimeout(function () {
-            _this.userMessageBot(resolve, reject, step);
-          }, NEXT_USER_MESSAGE_TIMEOUT);
-        }
-      })
-      .catch(function (err) {
-        reject(err);
-      });
+      const logger = this._d('log');
+      const _this = this;
+      MessageFactory.userFactory(scriptObj, this.bot, logger)
+        // .send(scriptObj)
+        .send()
+        .then(function () {
+          // if (_this.messages.length && (_this.messages[0].user)) {
+          //   setTimeout(function () {
+          _this.userMessageBot(resolve, reject, step);
+          //   }, NEXT_USER_MESSAGE_TIMEOUT);
+          // }
+        })
+        .catch(function (err) {
+          reject(err);
+        });
+    } else {
+      console.log("MESSAGE-0");
+      console.log(JSON.stringify(this.messages[0]));
+    }
   }
 
   private setupOptions() {
@@ -159,7 +160,7 @@ export class TestBot {
       _this._d('log')(message);
       if (_this.messages.length) {
         if (_this.messages[0].bot) {
-          const scriptObj = _this.messages.shift();
+          const scriptObj = _this.processScripMsg();
           _this._d('log')('Expecting:');
           _this._d('log')(scriptObj);
           _this._d('log')('--');
@@ -173,16 +174,22 @@ export class TestBot {
                 _this._d('log')(err.message);
                 process.exit(0);
               } else {
+                _this.userMessageBot(resolve, reject, step);
                 _this.goToNextScriptObj(resolve, reject, step);
               }
             });
+        } else {
+          _this.userMessageBot(resolve, reject, step);
         }
-
       } else {
         _this._d('log')('Bot: >>Ignoring message (Out of Range)', LOG_LEVELS.info);
         setTimeout(resolve, FINISH_TIMEOUT); // Enable message from connector to appear in current test suite
       }
     });
+  }
+
+  private processScripMsg(): any {
+    return this.messages.shift();
   }
 
   public run(): Promise<any> {
