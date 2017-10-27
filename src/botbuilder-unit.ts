@@ -174,13 +174,14 @@ export class TestBot {
                 _this._d('log')(err.message);
                 process.exit(0);
               } else {
-                _this.userMessageBot(resolve, reject, step);
+                // _this.userMessageBot(resolve, reject, step);
                 _this.goToNextScriptObj(resolve, reject, step);
               }
             });
-        } else {
-          _this.userMessageBot(resolve, reject, step);
         }
+        // else {
+        //   _this.userMessageBot(resolve, reject, step);
+        // }
       } else {
         _this._d('log')('Bot: >>Ignoring message (Out of Range)', LOG_LEVELS.info);
         setTimeout(resolve, FINISH_TIMEOUT); // Enable message from connector to appear in current test suite
@@ -198,12 +199,12 @@ export class TestBot {
       const step = 0;
       const connector = _this.bot.connector('console');
 
-      _this.catchBotReplies(resolve, reject, step);
-      _this.startTesting(resolve, reject, step);
-
       setTimeout(() => {
         reject(`Default timeout (${_this.options.DEFAULT_TEST_TIMEOUT}) exceeded`);
       }, DEFAULT_TEST_TIMEOUT);
+
+      _this.catchBotReplies(resolve, reject, step);
+      _this.startTesting(resolve, reject, step);
     });
   }
 }
