@@ -27,13 +27,6 @@ export class BotMessage {
     const _this = this;
 
     return new Promise((resolve: Function, reject: Function) => {
-      // this.logger(`BOT ACTUAL: >>`, LOG_LEVELS.info);
-      if (botMessage.text) {
-        _this.logger(`BOT ACTUAL1: >> ${(botMessage.text)}`, LOG_LEVELS.info);
-      } else {
-        _this.logger(`BOT ACTUAL2: >> ${JSON.stringify(botMessage)}`, LOG_LEVELS.info);
-      }
-
       _this.customBeforeScriptMsgFunc(_this.scriptObj, _this.bot)
         .then(() => {
           if (_this.scriptObj.bot) {
@@ -55,22 +48,30 @@ export class BotMessage {
               } else {
                 reject(chalk.yellow(`No input message in: \n${JSON.stringify(_this.scriptObj)}`));
               }
-              return true;
+              // return true;
+              Promise.resolve();
             }
           } else if (_this.scriptObj.endConversation) {
             _this.logger(`BOT: >> endConversation `, LOG_LEVELS.info);
-            return true;
+            // return true;
+            Promise.resolve();
           } else if (_this.scriptObj.typing) {
             _this.logger(`BOT: >> typing `, LOG_LEVELS.info);
-            return true;
+            // return true;
+            Promise.resolve();
           } else {
-            reject(chalk.yellow(`Unable to find matching validator.Step scriptObj: \n${JSON.stringify(_this.scriptObj)}`));
+            reject(chalk.yellow(`Unable to find matching validator. Step scriptObj: \n${JSON.stringify(_this.scriptObj)}`));
           }
         })
         .then(() => {
           return _this.customAfterScriptMsgFunc(_this.scriptObj, _this.bot);
         })
         .then(() => {
+          if (botMessage.text) {
+            _this.logger(`BOT ACTUAL1: >> ${(botMessage.text)}\n`, LOG_LEVELS.info);
+          } else {
+            _this.logger(`BOT ACTUAL2: >> ${JSON.stringify(botMessage)}\n`, LOG_LEVELS.info);
+          }
           resolve();
         })
         .catch((err) => {

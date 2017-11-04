@@ -61,14 +61,17 @@ export class UserMessage {
             _this.connector.onEventHandler([message.toMessage()]);
           } else {
             //pass message to console connector
+            console.log("Sending message to bot");
             _this.connector.processMessage(message);
           }
-          return true;
+          // return true;
+          Promise.resolve();
         })
         .then(() => {
           return _this.customAfterScriptMsgFunc(_this.scriptObj, _this.bot);
         })
         .then(() => {
+          console.log("Resolving");
           resolve();
         })
         .catch((err) => {
