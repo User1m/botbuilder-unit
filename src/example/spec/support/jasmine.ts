@@ -1,5 +1,5 @@
-{
-  "spec_dir": "example",
+export = {
+  "spec_dir": "build/example",
   "spec_files": [
     "**/*[sS]pec.js"
   ],
