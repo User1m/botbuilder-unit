@@ -33,7 +33,8 @@ class BotTestOrchestrator {
     }
   };
   private step: number = 0;
-  private botLastMsgTimeStamp: number = 0;
+  private botMessageStore: Array<any> = [];
+  private botMessageValidationStore: Array<any> = [];
 
   constructor(bot, messages: ScriptObj[], options) {
     this.bot = bot;
@@ -80,22 +81,30 @@ class BotTestOrchestrator {
     return this.messages.shift();
   }
 
-  private checkNextScriptMsgActor(): string {
+  private checkNextScriptMsgActor(): string | undefined {
     return (this.messages[0].user) ? ACTORS.user : ACTORS.bot;
   }
 
-  private validateBotMsgWithExpected(message, scriptObj, checkNextMsgCb) {
+  private validateBotMessages(checkNextMsgCb) {
     const _this = this;
-    MessageFactory
-      .bot(scriptObj, _this.bot, _this._d('log'))
-      .validate(message)
-      .then(() => {
-        checkNextMsgCb();
-      })
-      .catch((err) => {
-        // checkNextMsgCb(err);
-        Promise.reject(err);
-      });
+
+    return new Promise((resolve, reject) => {
+      for (var index = 0; index < _this.botMessageStore.length; index++) {
+        const scriptObj = _this.botMessageValidationStore[index];
+        MessageFactory
+          .bot(scriptObj, _this.bot, _this._d('log'))
+          .validate(_this.botMessageStore[index])
+          .then(() => {
+            _this.botMessageStore = [];
+            _this.botMessageValidationStore = [];
+            checkNextMsgCb();
+          }).catch((err) => {
+            // checkNextMsgCb(err);
+            Promise.reject(err);
+          });
+      }
+      resolve();
+    });
   }
 
   private startTesting(resolve: Function, reject: Function, step: number) {
@@ -104,7 +113,7 @@ class BotTestOrchestrator {
       // this.getNextScriptMsg(resolve, reject, step);
       this.userMessageBot(resolve, reject);
     } else {
-      console.log(chalk.red("NOTHING TO TEST"));
+      this._d('log')(chalk.red("NOTHING TO TEST"));
       resolve();
     }
   }
@@ -114,12 +123,8 @@ class BotTestOrchestrator {
       this.printScriptFinished(resolve);
       return;
     }
-
-    if (this.checkNextScriptMsgActor() === ACTORS.bot) {
-      return;
-    } else if (this.checkNextScriptMsgActor() === ACTORS.user) {
+    if (this.checkNextScriptMsgActor() === ACTORS.user) {
       this.step++;
-      this.botLastMsgTimeStamp = 0;
       this.userMessageBot(resolve, reject);
     }
   }
@@ -142,11 +147,22 @@ class BotTestOrchestrator {
   private setupBotReplyCatcherEvent(resolve: Function, reject: Function, step: number) {
     const _this = this;
     this.bot.on('send', function (message) {
-      const now = new Date().getTime();
-      const delta = _this.botLastMsgTimeStamp - now;
-      if (_this.botLastMsgTimeStamp == 0 || delta > 30) {
+
+      if (_this.botMessageStore.length == 0) {
         _this._d('log')(`\nStep: #${_this.step}\nReceived message from bot:`);
       }
+      if (_this.checkNextScriptMsgActor() === ACTORS.bot) {
+        _this.botMessageStore.push(message);
+        _this.botMessageValidationStore.push(_this.processNextScriptMsg());
+        if (_this.messages.length == 0 || _this.checkNextScriptMsgActor() === ACTORS.user) {
+          setTimeout(() => {
+            _this.validateBotMessages(() => {
+              _this.getNextScriptMsg(resolve, reject, step);
+            });
+          }, 100);
+        }
+      }
+
       // _this._d('log')(message.text);
       // if (_this.messages.length) {
       //   if (_this.messages[0].bot) {
@@ -154,7 +170,7 @@ class BotTestOrchestrator {
       //     _this._d('log')(scriptObj);
       //     _this._d('log')('--');
       //     _this.callCustomScriptFunction(scriptObj, _this.bot, TRIGGER_STATE.before, message);
-      //     _this.validateBotMsgWithExpected(message, scriptObj, (err) => {
+      //     _this.validateBotMessages(message, scriptObj, (err) => {
       //       _this.callCustomScriptFunction(scriptObj, _this.bot, TRIGGER_STATE.after, err);
       //       if (err !== undefined) {
       //         // fail(err);
@@ -162,14 +178,7 @@ class BotTestOrchestrator {
       //         process.exit(0);
       //       } else {
       // _this.getNextScriptMsg(resolve, reject, step);
-      if (_this.checkNextScriptMsgActor() === ACTORS.bot) {
-        const scriptObj = _this.processNextScriptMsg();
-        _this.validateBotMsgWithExpected(message, scriptObj, () => {
-          _this.getNextScriptMsg(resolve, reject, step);
-        });
-      } else {
-        reject("NOT A BOT REPLY TO TEST");
-      }
+
       //       }
       //     });
       //   }
@@ -180,7 +189,6 @@ class BotTestOrchestrator {
       //   _this._d('log')('Bot: >> Ignoring message (Out of Range)', LOG_LEVELS.info);
       //   // setTimeout(resolve, FINISH_TIMEOUT); // Enable message from connector to appear in current test suite
       // }
-      _this.botLastMsgTimeStamp = now;
     });
   }
 

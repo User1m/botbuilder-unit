@@ -64,7 +64,7 @@ export class UserMessage {
             (_this.connector as any).onEventHandler([message.toMessage()]);
           } else {
             //pass message to console connector
-            console.log("Sending message to bot");
+            _this.logger("Sending message to bot");
             (_this.connector as ConsoleConnector).processMessage(message);
           }
           // return true;
@@ -74,7 +74,7 @@ export class UserMessage {
           return _this.afterFunction(_this.scriptObj, _this.bot);
         })
         .then(() => {
-          console.log("Resolving");
+          _this.logger("Resolving");
           resolve();
         })
         .catch((err) => {

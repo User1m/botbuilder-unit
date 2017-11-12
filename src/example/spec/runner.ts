@@ -2,7 +2,8 @@ process.on('uncaughtException', function (exception) {
   console.log(exception);
 });
 process.on('unhandledRejection', (reason, p) => {
-  console.log("Unhandled Rejection at: Promise ", p, " reason: ", reason);
+  // console.log("Unhandled Rejection at: Promise ", p, " reason: ", reason);
+  console.log(reason);
 });
 
 import Jasmine = require('jasmine');

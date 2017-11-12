@@ -47,7 +47,7 @@ export class BotMessage {
               return _this.scriptObj.bot(_this.bot, botMessage);
             } else {
               if (_this.scriptObj.bot) {
-                _this.logger(chalk.yellow(`\nBOT EXPECT: >> ${_this.scriptObj.bot}\n`), LOG_LEVELS.info);
+                _this.logger(chalk.yellow(`BOT EXPECT: >> ${_this.scriptObj.bot}\n`), LOG_LEVELS.info);
                 let result = ((_this.scriptObj.bot as any).test ?
                   (_this.scriptObj.bot as any).test(botMessage.text) : botMessage.text === _this.scriptObj.bot);
                 if (!result) {
@@ -55,8 +55,7 @@ export class BotMessage {
                   const expected = _this.scriptObj.bot;
                   const err = _this.printErrorMsg(actual, expected);
                   // throw err;
-                  // reject(err);
-                  throw err;
+                  reject(err);
                 }
               } else {
                 reject(chalk.yellow(`No input message in: \n${JSON.stringify(_this.scriptObj)}`));
@@ -81,14 +80,14 @@ export class BotMessage {
         })
         .then(() => {
           if (botMessage.text) {
-            _this.logger(chalk.green(`BOT ACTUAL1: >> ${(botMessage.text)}\n`), LOG_LEVELS.info);
+            _this.logger(chalk.green(`BOT ACTUAL: >> ${(botMessage.text)}\n`), LOG_LEVELS.info);
           } else {
-            _this.logger(chalk.green(`BOT ACTUAL2: >> ${JSON.stringify(botMessage)}\n`), LOG_LEVELS.info);
+            _this.logger(chalk.green(`BOT ACTUAL: >> ${JSON.stringify(botMessage)}\n`), LOG_LEVELS.info);
           }
           resolve();
         })
         .catch((err) => {
-          console.log("Test Failed Rejecting....");
+          _this.logger("Test Failed Rejecting....");
           reject(err);
         });
     });
