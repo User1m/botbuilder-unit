@@ -12,21 +12,21 @@ describe('Simple test for a bot', () => {
     bot = new builder.UniversalBot(connector);
   });
 
-  it('Test welcome flow', (done) => {
-    const messages = require('./hiScript');
+  // it('Test welcome flow', (done) => {
+  //   const messages = require('./hiScript');
 
-    bot.dialog('/', [
-      session => builder.Prompts.text(session, 'How should I call you?'),
-      (session, args) => {
-        builder.Prompts.text(session, `Nice to meet you, ${JSON.stringify(args.response)}!`);
-      },
-      (session, args) => session.endDialog(`Goodbye!`)
-    ]);
-    runTest(bot, messages, ops)
-      .then(function () {
-        done();
-      });
-  });
+  //   bot.dialog('/', [
+  //     session => builder.Prompts.text(session, 'How should I call you?'),
+  //     (session, args) => {
+  //       builder.Prompts.text(session, `Nice to meet you, ${JSON.stringify(args.response)}!`);
+  //     },
+  //     (session, args) => session.endDialog(`Goodbye!`)
+  //   ]);
+  //   runTest(bot, messages, ops)
+  //     .then(function () {
+  //       done();
+  //     });
+  // });
 
   it('Test welcome flow 2', (done) => {
     const messages = require('./hiScript.1');
