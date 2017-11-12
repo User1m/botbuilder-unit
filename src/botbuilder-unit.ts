@@ -33,6 +33,7 @@ class BotTestOrchestrator {
     }
   };
   private step: number = 0;
+  private botLastMsgTimeStamp: number = 0;
 
   constructor(bot, messages: ScriptObj[], options) {
     this.bot = bot;
@@ -131,6 +132,7 @@ class BotTestOrchestrator {
       // const _this = this;
       // setTimeout(function () {
       this.step++;
+      this.botLastMsgTimeStamp = 0;
       this.userMessageBot(resolve, reject);
       // }, 10);
     }
@@ -159,7 +161,11 @@ class BotTestOrchestrator {
   private setupBotReplyCatcherEvent(resolve: Function, reject: Function, step: number) {
     const _this = this;
     this.bot.on('send', function (message) {
-      _this._d('log')(`\nStep: #${_this.step}\nReceived message from bot:`);
+      const now = new Date().getTime();
+      const delta = _this.botLastMsgTimeStamp - now;
+      if (_this.botLastMsgTimeStamp == 0 || delta > 30) {
+        _this._d('log')(`\nStep: #${_this.step}\nReceived message from bot:`);
+      }
       // _this._d('log')(message.text);
       // if (_this.messages.length) {
       //   if (_this.messages[0].bot) {
@@ -193,6 +199,7 @@ class BotTestOrchestrator {
       //   _this._d('log')('Bot: >> Ignoring message (Out of Range)', LOG_LEVELS.info);
       //   // setTimeout(resolve, FINISH_TIMEOUT); // Enable message from connector to appear in current test suite
       // }
+      _this.botLastMsgTimeStamp = now;
     });
   }
 

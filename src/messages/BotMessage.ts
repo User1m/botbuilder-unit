@@ -14,11 +14,11 @@ export class BotMessage {
     this.bot = bot;
     this.logger = logger;
     this.beforeFunction = scriptObj.before || function () {
-      this.logger("------------ Finished Before Function \n", LOG_LEVELS.info);
+      // this.logger("------------ Finished Before Function \n", LOG_LEVELS.info);
       return Promise.resolve();
     }
     this.afterFunction = scriptObj.after || function () {
-      this.logger("------------ Finished After Function\n", LOG_LEVELS.info);
+      // this.logger("------------ Finished After Function\n", LOG_LEVELS.info);
       return Promise.resolve();
     };
   }
@@ -43,7 +43,7 @@ export class BotMessage {
               return _this.scriptObj.bot(_this.bot, botMessage);
             } else {
               if (_this.scriptObj.bot) {
-                _this.logger(`\nBOT EXPECT: >> ${_this.scriptObj.bot}`, LOG_LEVELS.info);
+                _this.logger(chalk.yellow(`\nBOT EXPECT: >> ${_this.scriptObj.bot}`), LOG_LEVELS.info);
                 let result = ((_this.scriptObj.bot as any).test ?
                   (_this.scriptObj.bot as any).test(botMessage.text) : botMessage.text === _this.scriptObj.bot);
                 if (!result) {
@@ -73,9 +73,9 @@ export class BotMessage {
         })
         .then(() => {
           if (botMessage.text) {
-            _this.logger(`BOT ACTUAL1: >> ${(botMessage.text)}\n`, LOG_LEVELS.info);
+            _this.logger(chalk.green(`BOT ACTUAL1: >> ${(botMessage.text)}\n`), LOG_LEVELS.info);
           } else {
-            _this.logger(`BOT ACTUAL2: >> ${JSON.stringify(botMessage)}\n`, LOG_LEVELS.info);
+            _this.logger(chalk.green(`BOT ACTUAL2: >> ${JSON.stringify(botMessage)}\n`), LOG_LEVELS.info);
           }
           resolve();
         })

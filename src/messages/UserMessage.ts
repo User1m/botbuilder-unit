@@ -1,6 +1,7 @@
 'use strict';
 import { LOG_LEVELS, ScriptObj } from "../helpers";
 import { UniversalBot, IConnector, ConsoleConnector } from "botbuilder";
+import { default as chalk } from 'chalk';
 
 const mockConvo = {
   channelId: 'console',
@@ -43,7 +44,7 @@ export class UserMessage {
     const _this = this;
     return new Promise((resolve, reject) => {
 
-      _this.logger('User: >> ' + _this.scriptObj.user, LOG_LEVELS.info);
+      _this.logger(chalk.cyanBright('User: >> ' + _this.scriptObj.user), LOG_LEVELS.info);
       _this.logger('Iterating to next step from user message');
 
       _this.beforeFunction(_this.scriptObj, _this.bot)
