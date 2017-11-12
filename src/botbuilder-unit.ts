@@ -100,17 +100,15 @@ class BotTestOrchestrator {
             checkNextMsgCb();
           }).catch((err) => {
             // checkNextMsgCb(err);
-            Promise.reject(err);
+            reject(err);
           });
       }
-      resolve();
     });
   }
 
   private startTesting(resolve: Function, reject: Function, step: number) {
     if (this.messages.length) {
       this.printInputScriptStart();
-      // this.getNextScriptMsg(resolve, reject, step);
       this.userMessageBot(resolve, reject);
     } else {
       this._d('log')(chalk.red("NOTHING TO TEST"));
