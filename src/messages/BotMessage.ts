@@ -27,19 +27,18 @@ export class BotMessage {
 
   private printErrorMsg(actual, expected): string {
     var errorMsg = `\n--------------------------------------------------------------------------------------\n`;
-    errorMsg += chalk.red("ERROR:\n\n");
-    errorMsg += `Expect: ${chalk.green(expected)}\n\n`;
-    errorMsg += `${chalk.yellow("\t------- did not match -------")}\n\n`;
-    errorMsg += `Actual: ${chalk.red(actual)}\n\n`;
+    errorMsg += `${chalk.white("Expect: ")}${chalk.yellow(expected)}\n\n`;
+    errorMsg += chalk.white(`\t------- did not match -------\n\n`);
+    errorMsg += `${chalk.white("Actual: ")}${chalk.green(actual)} \n\n`;
 
-    errorMsg += `Diff: `
+    errorMsg += `${chalk.white("Diffed: ")}`
     var diff = jsdiff.diffChars(expected, actual);
 
     diff.forEach(function (part) {
       // green for additions, red for deletions
       // grey for common parts
-      errorMsg += (part.added ? chalk.bgGreenBright(part.value) :
-        part.removed ? chalk.bgRedBright(part.value) : chalk.gray(part.value));
+      errorMsg += (part.added ? chalk.bgGreenBright(chalk.white(part.value)) :
+        part.removed ? chalk.bgRedBright(chalk.white(part.value)) : chalk.gray(part.value));
     });
     errorMsg += `\n--------------------------------------------------------------------------------------\n`;
     return errorMsg;
@@ -56,7 +55,7 @@ export class BotMessage {
               return _this.scriptObj.bot(_this.bot, botMessage);
             } else {
               if (_this.scriptObj.bot) {
-                _this.logger(chalk.yellow(`BOT EXPECT: >> ${_this.scriptObj.bot}`), LOG_LEVELS.info);
+                _this.logger(chalk.yellow(`BOT EXPECT: >> ${_this.scriptObj.bot} `), LOG_LEVELS.info);
                 let result = ((_this.scriptObj.bot as any).test ?
                   (_this.scriptObj.bot as any).test(botMessage.text) : botMessage.text === _this.scriptObj.bot);
                 if (!result) {
@@ -67,21 +66,21 @@ export class BotMessage {
                   fail(new Error(err));
                 }
               } else {
-                reject(chalk.yellow(`No input message in: \n${JSON.stringify(_this.scriptObj)}`));
+                reject(chalk.yellow(`No input message in: \n${JSON.stringify(_this.scriptObj)} `));
               }
               // return true;
               Promise.resolve();
             }
           } else if (_this.scriptObj.endConversation) {
-            _this.logger(`BOT: >> endConversation `, LOG_LEVELS.info);
+            _this.logger(`BOT: >> endConversation`, LOG_LEVELS.info);
             // return true;
             Promise.resolve();
           } else if (_this.scriptObj.typing) {
-            _this.logger(`BOT: >> typing `, LOG_LEVELS.info);
+            _this.logger(`BOT: >> typing`, LOG_LEVELS.info);
             // return true;
             Promise.resolve();
           } else {
-            reject(chalk.yellow(`Unable to find matching validator. Step scriptObj: \n${JSON.stringify(_this.scriptObj)}`));
+            reject(chalk.yellow(`Unable to find matching validator.Step scriptObj: \n${JSON.stringify(_this.scriptObj)} `));
           }
         })
         .then(() => {
@@ -89,9 +88,9 @@ export class BotMessage {
         })
         .then(() => {
           if (botMessage.text) {
-            _this.logger(chalk.magenta(`BOT ACTUAL: >> ${(botMessage.text)}`), LOG_LEVELS.info);
+            _this.logger(chalk.green(`BOT ACTUAL: >> ${(botMessage.text)} `), LOG_LEVELS.info);
           } else {
-            _this.logger(chalk.magenta(`BOT ACTUAL: >> ${JSON.stringify(botMessage)}`), LOG_LEVELS.info);
+            _this.logger(chalk.green(`BOT ACTUAL: >> ${JSON.stringify(botMessage)} `), LOG_LEVELS.info);
           }
           resolve();
         })

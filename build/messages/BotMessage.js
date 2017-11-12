@@ -17,15 +17,14 @@ class BotMessage {
     }
     printErrorMsg(actual, expected) {
         var errorMsg = `\n--------------------------------------------------------------------------------------\n`;
-        errorMsg += chalk_1.default.red("ERROR:\n\n");
-        errorMsg += `Expect: ${chalk_1.default.green(expected)}\n\n`;
-        errorMsg += `${chalk_1.default.yellow("\t------- did not match -------")}\n\n`;
-        errorMsg += `Actual: ${chalk_1.default.red(actual)}\n\n`;
-        errorMsg += `Diff: `;
+        errorMsg += `${chalk_1.default.white("Expect: ")}${chalk_1.default.yellow(expected)}\n\n`;
+        errorMsg += chalk_1.default.white(`\t------- did not match -------\n\n`);
+        errorMsg += `${chalk_1.default.white("Actual: ")}${chalk_1.default.green(actual)} \n\n`;
+        errorMsg += `${chalk_1.default.white("Diffed: ")}`;
         var diff = jsdiff.diffChars(expected, actual);
         diff.forEach(function (part) {
-            errorMsg += (part.added ? chalk_1.default.bgGreenBright(part.value) :
-                part.removed ? chalk_1.default.bgRedBright(part.value) : chalk_1.default.gray(part.value));
+            errorMsg += (part.added ? chalk_1.default.bgGreenBright(chalk_1.default.white(part.value)) :
+                part.removed ? chalk_1.default.bgRedBright(chalk_1.default.white(part.value)) : chalk_1.default.gray(part.value));
         });
         errorMsg += `\n--------------------------------------------------------------------------------------\n`;
         return errorMsg;
@@ -41,7 +40,7 @@ class BotMessage {
                     }
                     else {
                         if (_this.scriptObj.bot) {
-                            _this.logger(chalk_1.default.yellow(`BOT EXPECT: >> ${_this.scriptObj.bot}`), helpers_1.LOG_LEVELS.info);
+                            _this.logger(chalk_1.default.yellow(`BOT EXPECT: >> ${_this.scriptObj.bot} `), helpers_1.LOG_LEVELS.info);
                             let result = (_this.scriptObj.bot.test ?
                                 _this.scriptObj.bot.test(botMessage.text) : botMessage.text === _this.scriptObj.bot);
                             if (!result) {
@@ -52,21 +51,21 @@ class BotMessage {
                             }
                         }
                         else {
-                            reject(chalk_1.default.yellow(`No input message in: \n${JSON.stringify(_this.scriptObj)}`));
+                            reject(chalk_1.default.yellow(`No input message in: \n${JSON.stringify(_this.scriptObj)} `));
                         }
                         Promise.resolve();
                     }
                 }
                 else if (_this.scriptObj.endConversation) {
-                    _this.logger(`BOT: >> endConversation `, helpers_1.LOG_LEVELS.info);
+                    _this.logger(`BOT: >> endConversation`, helpers_1.LOG_LEVELS.info);
                     Promise.resolve();
                 }
                 else if (_this.scriptObj.typing) {
-                    _this.logger(`BOT: >> typing `, helpers_1.LOG_LEVELS.info);
+                    _this.logger(`BOT: >> typing`, helpers_1.LOG_LEVELS.info);
                     Promise.resolve();
                 }
                 else {
-                    reject(chalk_1.default.yellow(`Unable to find matching validator. Step scriptObj: \n${JSON.stringify(_this.scriptObj)}`));
+                    reject(chalk_1.default.yellow(`Unable to find matching validator.Step scriptObj: \n${JSON.stringify(_this.scriptObj)} `));
                 }
             })
                 .then(() => {
@@ -74,10 +73,10 @@ class BotMessage {
             })
                 .then(() => {
                 if (botMessage.text) {
-                    _this.logger(chalk_1.default.magenta(`BOT ACTUAL: >> ${(botMessage.text)}`), helpers_1.LOG_LEVELS.info);
+                    _this.logger(chalk_1.default.green(`BOT ACTUAL: >> ${(botMessage.text)} `), helpers_1.LOG_LEVELS.info);
                 }
                 else {
-                    _this.logger(chalk_1.default.magenta(`BOT ACTUAL: >> ${JSON.stringify(botMessage)}`), helpers_1.LOG_LEVELS.info);
+                    _this.logger(chalk_1.default.green(`BOT ACTUAL: >> ${JSON.stringify(botMessage)} `), helpers_1.LOG_LEVELS.info);
                 }
                 resolve();
             });
