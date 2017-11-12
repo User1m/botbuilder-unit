@@ -1,33 +1,42 @@
 import { default as chalk } from 'chalk';
-import { LOG_LEVELS } from "../helpers";
+import { LOG_LEVELS, ScriptObj } from "../helpers";
+import { UniversalBot } from "botbuilder";
 
 export class BotMessage {
-  private scriptObj;
-  private customAfterScriptMsgFunc: Function
-  private customBeforeScriptMsgFunc: Function
+  private scriptObj: ScriptObj;
+  private beforeFunction: Function
+  private afterFunction: Function
   private logger;
-  private bot;
-  private connector;
+  private bot: UniversalBot;
 
-  constructor(scriptObj, bot, logger) {
+  constructor(scriptObj: ScriptObj, bot: UniversalBot, logger: any) {
     this.scriptObj = scriptObj;
     this.bot = bot;
     this.logger = logger;
-    this.customBeforeScriptMsgFunc = this.scriptObj.before || function () {
-      // this.logger("\n", LOG_LEVELS.info);
+    this.beforeFunction = scriptObj.before || function () {
+      this.logger("------------ Finished Before Function \n", LOG_LEVELS.info);
       return Promise.resolve();
     }
-    this.customAfterScriptMsgFunc = this.scriptObj.after || function () {
-      this.logger("\n", LOG_LEVELS.info);
+    this.afterFunction = scriptObj.after || function () {
+      this.logger("------------ Finished After Function\n", LOG_LEVELS.info);
       return Promise.resolve();
     };
+  }
+
+  private printErrorMsg(botMessage, scriptObj): string {
+    var errorMsg = `\n--------------------------------------------------------------------------------------\n `;
+    errorMsg += chalk.red("ERROR:\n");
+    errorMsg += `\nActual: ${chalk.red(botMessage.text)}\n\n`;
+    errorMsg += `${chalk.yellow("\t------- did not match -------")}\n\n`;
+    errorMsg += `Expect: ${chalk.green(scriptObj.bot)}\n `;
+    return errorMsg;
   }
 
   public validate(botMessage) {
     const _this = this;
 
     return new Promise((resolve: Function, reject: Function) => {
-      _this.customBeforeScriptMsgFunc(_this.scriptObj, _this.bot)
+      _this.beforeFunction(_this.scriptObj, _this.bot)
         .then(() => {
           if (_this.scriptObj.bot) {
             if (typeof _this.scriptObj.bot === 'function') {
@@ -35,14 +44,10 @@ export class BotMessage {
             } else {
               if (_this.scriptObj.bot) {
                 _this.logger(`\nBOT EXPECT: >> ${_this.scriptObj.bot}`, LOG_LEVELS.info);
-                let result = (_this.scriptObj.bot.test ? _this.scriptObj.bot.test(botMessage.text) : botMessage.text === _this.scriptObj.bot);
+                let result = ((_this.scriptObj.bot as any).test ?
+                  (_this.scriptObj.bot as any).test(botMessage.text) : botMessage.text === _this.scriptObj.bot);
                 if (!result) {
-                  var errorMsg = `\n--------------------------------------------------------------------------------------\n `;
-                  errorMsg += chalk.red("ERROR:\n");
-                  errorMsg += `\nActual: ${chalk.red(botMessage.text)}\n\n`;
-                  errorMsg += `${chalk.yellow("\t------- did not match -------")}\n\n`;
-                  errorMsg += `Expect: ${chalk.green(_this.scriptObj.bot)}\n `;
-                  throw new Error(errorMsg);
+                  throw new Error(_this.printErrorMsg(botMessage, _this.scriptObj));
                   // reject(error);
                 }
               } else {
@@ -64,7 +69,7 @@ export class BotMessage {
           }
         })
         .then(() => {
-          return _this.customAfterScriptMsgFunc(_this.scriptObj, _this.bot);
+          return _this.afterFunction(_this.scriptObj, _this.bot);
         })
         .then(() => {
           if (botMessage.text) {

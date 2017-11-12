@@ -1,8 +1,8 @@
-import { TestBot } from '../../botbuilder-unit';
+import { runTest } from '../../botbuilder-unit';
 import builder = require('botbuilder');
 const ops = {
   DEFAULT_TEST_TIMEOUT: 999999,
-  LOG_LEVEL: 1
+  LOG_LEVEL: 2
 };
 
 describe('Simple test for a bot', () => {
@@ -22,8 +22,7 @@ describe('Simple test for a bot', () => {
 
   it('Test welcome flow', (done) => {
     const messages = require('./hiScript');
-    new TestBot(bot, messages, ops)
-      .run()
+    runTest(bot, messages, ops)
       .then(function () {
         done();
       });

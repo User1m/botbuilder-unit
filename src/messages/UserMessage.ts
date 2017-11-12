@@ -1,23 +1,39 @@
 'use strict';
-import { LOG_LEVELS } from "../helpers";
+import { LOG_LEVELS, ScriptObj } from "../helpers";
+import { UniversalBot, IConnector, ConsoleConnector } from "botbuilder";
+
+const mockConvo = {
+  channelId: 'console',
+  user: {
+    id: 'user',
+    name: 'User1'
+  },
+  bot: {
+    id: 'bot',
+    name: 'Bot'
+  },
+  conversation: {
+    id: 'Convo1'
+  }
+};
 
 export class UserMessage {
-  private scriptObj;
-  private customAfterScriptMsgFunc: Function
-  private customBeforeScriptMsgFunc: Function
+  private scriptObj: ScriptObj;
+  private beforeFunction: Function
+  private afterFunction: Function
   private logger;
-  private bot;
-  private connector;
+  private bot: UniversalBot;
+  private connector: IConnector;
 
-  constructor(scriptObj, bot, logger, connector) {
+  constructor(scriptObj: ScriptObj, bot: UniversalBot, logger: any, connector: IConnector) {
     this.scriptObj = scriptObj;
     this.logger = logger;
     this.bot = bot;
     this.connector = connector;
-    this.customBeforeScriptMsgFunc = scriptObj.before || function (scriptObj, bot) {
+    this.beforeFunction = scriptObj.before || function (scriptObj, bot) {
       return Promise.resolve();
     }
-    this.customAfterScriptMsgFunc = scriptObj.after || function (scriptObj, bot) {
+    this.afterFunction = scriptObj.after || function (scriptObj, bot) {
       return Promise.resolve();
     }
   }
@@ -30,8 +46,7 @@ export class UserMessage {
       _this.logger('User: >> ' + _this.scriptObj.user, LOG_LEVELS.info);
       _this.logger('Iterating to next step from user message');
 
-      _this
-        .customBeforeScriptMsgFunc(_this.scriptObj, _this.bot)
+      _this.beforeFunction(_this.scriptObj, _this.bot)
         .then(() => {
           if (typeof _this.scriptObj.user === "function") {
             return _this.scriptObj.user(_this.bot);
@@ -43,32 +58,19 @@ export class UserMessage {
         .then((message) => {
           if (typeof message === "object") {
             if (!message.data.address) {
-              message.address({
-                channelId: 'console',
-                user: {
-                  id: 'user',
-                  name: 'User1'
-                },
-                bot: {
-                  id: 'bot',
-                  name: 'Bot'
-                },
-                conversation: {
-                  id: 'Convo1'
-                }
-              });
+              message.address(mockConvo);
             }
-            _this.connector.onEventHandler([message.toMessage()]);
+            (_this.connector as any).onEventHandler([message.toMessage()]);
           } else {
             //pass message to console connector
             console.log("Sending message to bot");
-            _this.connector.processMessage(message);
+            (_this.connector as ConsoleConnector).processMessage(message);
           }
           // return true;
-          Promise.resolve();
+          return Promise.resolve();
         })
         .then(() => {
-          return _this.customAfterScriptMsgFunc(_this.scriptObj, _this.bot);
+          return _this.afterFunction(_this.scriptObj, _this.bot);
         })
         .then(() => {
           console.log("Resolving");

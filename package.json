@@ -10,6 +10,7 @@
     "botbuilder": "^3.8.2",
     "chalk": "^2.3.0"
   },
+  "types": ["./build/helpers.d.ts", "./build/botbuilder-unit.d.ts"],
   "devDependencies": {
     "@types/jasmine": "^2.6.2",
     "@types/node": "^8.0.47",
@@ -21,9 +22,9 @@
   },
   "scripts": {
     "watch": "tsc -w -p tsconfig.json",
-    "test": "gulp tests ",
+    "test": "gulp tests",
     "test-example": "node ./build/example/spec/runner",
-    "test_debug": "export NODE_DEBUG=botbuilder; node ./spec/runner.js "
+    "test-debug": "export NODE_DEBUG=botbuilder; node ./spec/runner.js "
   },
   "bugs": {
     "url": "https://github.com/gudwin/botbuilder-unit/issues",
