@@ -56,8 +56,8 @@ export class BotMessage {
             } else {
               if (_this.scriptObj.bot) {
                 _this.logger(chalk.yellow(`BOT EXPECT: >> ${_this.scriptObj.bot} `), LOG_LEVELS.info);
-                let result = ((_this.scriptObj.bot as any).test ?
-                  (_this.scriptObj.bot as any).test(botMessage.text) : botMessage.text === _this.scriptObj.bot);
+                let result = _this.scriptObj.test ?
+                  _this.scriptObj.test(botMessage.text) : botMessage.text === _this.scriptObj.bot;
                 if (!result) {
                   const actual = botMessage.text;
                   const expected = _this.scriptObj.bot;

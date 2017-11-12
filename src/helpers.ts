@@ -15,16 +15,13 @@ export enum ACTORS {
 }
 
 export interface ScriptObj {
-    bot?: string | BotOptions,
+    bot?: string,
     user?: string,
+    test: Function,
     before: Function,
     after: Function;
     endConversation: any;
     typing: any;
-}
-
-export interface BotOptions {
-    test: Function, text: string
 }
 
 export interface TestOptions {
