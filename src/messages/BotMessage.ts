@@ -1,6 +1,9 @@
 import { default as chalk } from 'chalk';
 import { LOG_LEVELS, ScriptObj } from "../helpers";
 import { UniversalBot } from "botbuilder";
+import * as colors from 'colors';
+import * as jsdiff from 'diff';
+
 
 export class BotMessage {
   private scriptObj: ScriptObj;
@@ -23,12 +26,13 @@ export class BotMessage {
     };
   }
 
-  private printErrorMsg(botMessage, scriptObj): string {
-    var errorMsg = `\n--------------------------------------------------------------------------------------\n `;
+  private printErrorMsg(actual, expected): string {
+    var errorMsg = `\n--------------------------------------------------------------------------------------\n`;
     errorMsg += chalk.red("ERROR:\n");
-    errorMsg += `\nActual: ${chalk.red(botMessage.text)}\n\n`;
+    errorMsg += `\nActual: ${chalk.red(actual)}\n\n`;
     errorMsg += `${chalk.yellow("\t------- did not match -------")}\n\n`;
-    errorMsg += `Expect: ${chalk.green(scriptObj.bot)}\n `;
+    errorMsg += `Expect: ${chalk.green(expected)}\n `;
+    errorMsg += `\n--------------------------------------------------------------------------------------\n`;
     return errorMsg;
   }
 
@@ -43,12 +47,16 @@ export class BotMessage {
               return _this.scriptObj.bot(_this.bot, botMessage);
             } else {
               if (_this.scriptObj.bot) {
-                _this.logger(chalk.yellow(`\nBOT EXPECT: >> ${_this.scriptObj.bot}`), LOG_LEVELS.info);
+                _this.logger(chalk.yellow(`\nBOT EXPECT: >> ${_this.scriptObj.bot}\n`), LOG_LEVELS.info);
                 let result = ((_this.scriptObj.bot as any).test ?
                   (_this.scriptObj.bot as any).test(botMessage.text) : botMessage.text === _this.scriptObj.bot);
                 if (!result) {
-                  throw new Error(_this.printErrorMsg(botMessage, _this.scriptObj));
-                  // reject(error);
+                  const actual = botMessage.text;
+                  const expected = _this.scriptObj.bot;
+                  const err = _this.printErrorMsg(actual, expected);
+                  // throw err;
+                  // reject(err);
+                  throw err;
                 }
               } else {
                 reject(chalk.yellow(`No input message in: \n${JSON.stringify(_this.scriptObj)}`));

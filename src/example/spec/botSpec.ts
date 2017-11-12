@@ -2,7 +2,7 @@ import { runTest } from '../../botbuilder-unit';
 import builder = require('botbuilder');
 const ops = {
   DEFAULT_TEST_TIMEOUT: 999999,
-  LOG_LEVEL: 2
+  LOG_LEVEL: 1
 };
 
 describe('Simple test for a bot', () => {
@@ -10,6 +10,27 @@ describe('Simple test for a bot', () => {
   beforeEach(() => {
     let connector = new builder.ConsoleConnector().listen();
     bot = new builder.UniversalBot(connector);
+  });
+
+  it('Test welcome flow', (done) => {
+    const messages = require('./hiScript');
+
+    bot.dialog('/', [
+      session => builder.Prompts.text(session, 'How should I call you?'),
+      (session, args) => {
+        builder.Prompts.text(session, `Nice to meet you, ${JSON.stringify(args.response)}!`);
+      },
+      (session, args) => session.endDialog(`Goodbye!`)
+    ]);
+    runTest(bot, messages, ops)
+      .then(function () {
+        done();
+      });
+  });
+
+  it('Test welcome flow 2', (done) => {
+    const messages = require('./hiScript.1');
+
     bot.dialog('/', [
       session => builder.Prompts.text(session, 'How should I call you?'),
       (session, args) => {
@@ -18,22 +39,10 @@ describe('Simple test for a bot', () => {
       },
       (session, args) => session.endDialog(`Goodbye!`)
     ]);
-  });
-
-  it('Test welcome flow', (done) => {
-    const messages = require('./hiScript');
     runTest(bot, messages, ops)
       .then(function () {
         done();
       });
   });
 
-  // it('Test welcome flow', (done) => {
-  //   let messages = require('./hiScript');
-  //   unit(bot, messages, {
-  //     LOG_LEVEL: 1
-  //   }).then(function () {
-  //     done();
-  //   })
-  // });
 });

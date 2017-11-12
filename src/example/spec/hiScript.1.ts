@@ -9,7 +9,10 @@ export =[
     "user": "Timmy"
   },
   {
-    "bot": "Nice to meet you \"Timmy\"!"
+    "bot": "Nice to meet you, \"Timmy\"!"
+  },
+  {
+    "bot": "Ok time to go!"
   },
   {
     "user": "See you"

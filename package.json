@@ -10,10 +10,15 @@
     "botbuilder": "^3.8.2",
     "chalk": "^2.3.0"
   },
-  "types": ["./build/helpers.d.ts", "./build/botbuilder-unit.d.ts"],
+  "types": [
+    "./build/helpers.d.ts",
+    "./build/botbuilder-unit.d.ts"
+  ],
   "devDependencies": {
     "@types/jasmine": "^2.6.2",
     "@types/node": "^8.0.47",
+    "colors": "^1.1.2",
+    "diff": "^3.4.0",
     "gulp": "^3.9.1",
     "gulp-jasmine": "^2.4.2",
     "gulp-watch": "^4.3.11",

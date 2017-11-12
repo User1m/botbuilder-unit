@@ -41,13 +41,6 @@ class BotTestOrchestrator {
     this.options = Object.assign(this.options, options);
   }
 
-  // private done(resolve) {
-  //   resolve();
-  // }
-  // private fail(reject, err) {
-  //   reject(err);
-  // }
-
   private callCustomScriptFunction(scriptObj, bot, customFunctionType, args) {
     if (typeof scriptObj[customFunctionType] === functionConst) {
       scriptObj[customFunctionType](this.bot, args);
@@ -58,14 +51,13 @@ class BotTestOrchestrator {
     return this.dependencies[key];
   }
 
-
   private printInputScriptStart() {
     this._d('log')("\n---------------------------------- INPUT SCRIPT --------------------------------------\n", LOG_LEVELS.info);
     let intro = '';
     this.messages.forEach((item, i) => {
       item = Object.assign({}, item);
       for (var key in item) {
-        if (item.hasOwnProperty(key) && ("function" == typeof (item[key]))) {
+        if (item.hasOwnProperty(key) && (functionConst == typeof (item[key]))) {
           item[key] = '[[Function]]';
         }
       }
@@ -101,7 +93,8 @@ class BotTestOrchestrator {
         checkNextMsgCb();
       })
       .catch((err) => {
-        checkNextMsgCb(err);
+        // checkNextMsgCb(err);
+        Promise.reject(err);
       });
   }
 
@@ -121,41 +114,29 @@ class BotTestOrchestrator {
       this.printScriptFinished(resolve);
       return;
     }
-    // if (this.checkNextScriptMsgActor() == ACTORS.user) {
-    //   this.userMessageBot(resolve, reject, step);
-    // }
+
     if (this.checkNextScriptMsgActor() === ACTORS.bot) {
-      // const scriptObj = this.processNextScriptMsg();
-      // this.getNextScriptMsg(resolve, reject, step);
       return;
     } else if (this.checkNextScriptMsgActor() === ACTORS.user) {
-      // const _this = this;
-      // setTimeout(function () {
       this.step++;
       this.botLastMsgTimeStamp = 0;
       this.userMessageBot(resolve, reject);
-      // }, 10);
     }
   }
 
   private userMessageBot(resolve: Function, reject: Function) {
     let scriptObj = this.processNextScriptMsg();
-    this._d('log')(`Step: #${this.step}`);
-
     const logger = this._d('log');
     const _this = this;
-    MessageFactory.user(scriptObj, this.bot, logger)
-      .send()
-      // .then(function () {
-      //   if (_this.messages.length && (_this.messages[0].user)) {
-      //     setTimeout(function () {
-      //       _this.getNextScriptMsg(resolve, reject, step);
-      //     }, 10000);
-      //   }
-      // })
-      .catch(function (err) {
-        reject(err);
-      });
+
+    setTimeout(() => {
+      _this._d('log')(`\nStep: #${_this.step}`);
+      MessageFactory.user(scriptObj, _this.bot, logger)
+        .send()
+        .catch(function (err) {
+          reject(err);
+        });
+    }, 10);
   }
 
   private setupBotReplyCatcherEvent(resolve: Function, reject: Function, step: number) {
