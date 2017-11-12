@@ -1,9 +1,9 @@
 process.on('uncaughtException', function (exception) {
-  console.log(exception);
+  console.log(`Uncaught Exception: ${exception}`);
 });
+
 process.on('unhandledRejection', (reason, p) => {
-  // console.log("Unhandled Rejection at: Promise ", p, " reason: ", reason);
-  console.log(reason);
+  console.log(`Unhandled Rejection at: Promise ${p}\n reason: ${reason}`);
 });
 
 import Jasmine = require('jasmine');
@@ -12,14 +12,14 @@ const jasmine = new Jasmine({});
 const config = require('./support/jasmine');
 jasmine.loadConfig(config);
 jasmine.configureDefaultReporter({
-  showColors: true
+  showColors: true,
+  print: function () { } //Override of the default reporter
 });
 
 
 import * as Reporter from 'jasmine-terminal-reporter';
 const reporter = new Reporter({
   isVerbose: true,
-  includeStackTrace: true,
 });
 
 jasmine.addReporter(reporter);
