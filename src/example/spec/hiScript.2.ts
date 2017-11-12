@@ -6,10 +6,10 @@ export =[
     "bot": "Nice to meet you!"
   },
   {
-    "bot": "Ok gotta go"
+    "bot": "Ok time to go!"
   },
   {
-    "bot": "Are you ready leave?"
+    "bot": "Are you ready to leave?"
   },
   {
     "user": "See you"
