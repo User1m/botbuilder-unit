@@ -2,5 +2,5 @@
 .idea
 node_modules/
 .vscode/
-build/
+build/example
 test.js
