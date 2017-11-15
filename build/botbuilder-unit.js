@@ -66,7 +66,9 @@ class BotTestOrchestrator {
         return this.messages.shift();
     }
     checkNextScriptMsgActor() {
-        return (this.messages[0].user) ? helpers_1.ACTORS.user : helpers_1.ACTORS.bot;
+        if (this.messages.length > 0) {
+            return (this.messages[0].user) ? helpers_1.ACTORS.user : helpers_1.ACTORS.bot;
+        }
     }
     validateBotMessages(checkNextMsgCb) {
         const _this = this;

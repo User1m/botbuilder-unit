@@ -82,7 +82,9 @@ class BotTestOrchestrator {
   }
 
   private checkNextScriptMsgActor(): string | undefined {
-    return (this.messages[0].user) ? ACTORS.user : ACTORS.bot;
+    if (this.messages.length > 0) {
+      return (this.messages[0].user) ? ACTORS.user : ACTORS.bot;
+    }
   }
 
   private validateBotMessages(checkNextMsgCb) {
