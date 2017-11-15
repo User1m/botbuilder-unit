@@ -146,7 +146,7 @@ class BotTestOrchestrator {
             const step = 0;
             const connector = _this.bot.connector(consoleConst);
             setTimeout(() => {
-                reject(`Default timeout (${_this.options.DEFAULT_TEST_TIMEOUT}) exceeded`);
+                fail(new Error(`Default timeout (${_this.options.DEFAULT_TEST_TIMEOUT}) exceeded`));
             }, _this.options.DEFAULT_TEST_TIMEOUT);
             _this.setupBotReplyCatcherEvent(resolve, reject, step);
             _this.startTesting(resolve, reject, step);
